@@ -1,5 +1,4 @@
-<?php
-
+<?php /** @noinspection ALL */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,26 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Privacy Subsystem implementation for tool_multitenantuser.
  *
- * @package     tool_multitenantuser
- * @category    string
- * @copyright   2018 Owen Tolman <owen@accenagroup.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_multitenantuser
+ * @copyright  2018 Owen Tolman <owen@accenagroup.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require('../../../config.php');
 
-global $CFG;
-global $PAGE;
-global $SESSION;
+namespace tool_mergeusers\privacy;
 
-// Report all PHP errors
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/blocklib.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/accesslib.php');
-require_once($CFG->libdir . '/weblib.php');
+class provider implements \core_privacy\local\metadata\null_provider {
 
-require_login();
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

@@ -31,3 +31,5 @@ $string['header_help'] =
     '<p>Given a user and a tenant, this plugin will attempt to clone the user under the tenant. 
     This is done to allow managers in multiple tenants to see course the completion status of 
     a single user.</p>';
+
+$string['privacy:metadata'] = 'The Multi Tenant User plugin does not store any personal data.';

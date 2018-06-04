@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,26 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Capabilities
+ *
+ * File         access.php
+ * Encoding     UTF-8
  *
  * @package     tool_multitenantuser
- * @category    string
+ *
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
+ * @author      Owen Tolman
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-require('../../../config.php');
+ *
+ **/
+defined('MOODLE_INTERNAL') || die;
 
-global $CFG;
-global $PAGE;
-global $SESSION;
-
-// Report all PHP errors
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
-
-require_once($CFG->libdir . '/blocklib.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/accesslib.php');
-require_once($CFG->libdir . '/weblib.php');
-
-require_login();
+$capabilities = array(
+    'tool/multitenantuser:administration' => array(
+        'captype' => 'view',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
+    'tool/multitenantuser:viewstatus' => array(
+        'captype' => 'view',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
+);

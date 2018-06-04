@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_multitenantuser';
 $plugin->release = '0.0.1';
-$plugin->version = 2018060100;
+$plugin->version = 2018060300;
 $plugin->requires = 2017051500;
 $plugin->maturity = MATURITY_ALPHA;
