@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,26 +16,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities
- *
- * File         access.php
- * Encoding     UTF-8
+ * Version information
  *
  * @package     tool_multitenantuser
- *
+ * @category    string
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
- * @author      Owen Tolman
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
- **/
-defined('MOODLE_INTERNAL') || die;
+ */
+spl_autoload_register(function ($class) {
 
-$capabilities = array(
-    'tool/multitenantuser:addtenant' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+    $fileName = strtolower($class) . '.php';
+    $fileDirname = dirname(__FILE__);
+    $dirs = array(
+        $fileDirname,
+        $fileDirname . '/table',
+        $fileDirname . '/local',
+        $fileDirname.'/../classes',
+    );
 
-        )
-    ),
-);
+    foreach ($dirs as $dir) {
+        if (is_file($dir . '/' . $fileName)) {
+            require_once $dir . '/' . $fileName;
+            if (class_exists($class)) {
+                return true;
+            }
+        }
+    }
+    return false;
+});

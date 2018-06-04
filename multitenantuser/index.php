@@ -39,3 +39,23 @@ require_once($CFG->libdir . '/accesslib.php');
 require_once($CFG->libdir . '/weblib.php');
 
 require_login();
+require_cabability('tool/multitenantuser:addtenant', context_system::instance());
+
+//Get possible posted parameters
+$option = optional_param('option', NULL, PARAM_TEXT);
+if(!$option) {
+    if(optional_param('clearselection', false, PARAM_TEXT)) {
+        $option = 'clearselection';
+    } else if(optional_param('addtenants', false, PARAM_TEXT)) {
+        $option = 'addtenants';
+    }
+}
+
+//Define form
+$multitenantform = new multitenantform();
+$renderer = $PAGE->get_renderer('tool_multitenantuser');
+
+$data = $multitenantform->get_data();
+
+//ADD TOOL CLASS
+//ADD SEARCH CLASS
