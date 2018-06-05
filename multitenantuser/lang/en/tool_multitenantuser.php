@@ -47,6 +47,12 @@ $string['saveselection_submit'] = 'Save selection';
 $string['clear_selection'] = 'Clear current selection';
 $string['user'] = 'User';
 $string['tenants'] = 'Tenants';
+$string['cligathering:description'] = "Introduce pairs of user's id to merge the first one into the\n
+second one. The first user id (fromid) will 'lose' all its data to be 'migrated'\n
+into the second one (toid). The user 'toid' will include data from both users.";
+$string['cligathering:stopping'] = 'To stop merging, Ctrl+C or type -1 either on fromid or toid fields.';
+$string['cligathering:fromid'] = 'Source user id (fromid):';
+$string['cligathering:toid'] =   'Target user id   (toid):';
 $string['adding'] = 'Tenants added.';
 $string['useraddingheader'] = '&laquo;{$a->username}&raquo; (user ID = {$a->id})';
 $string['into'] = 'tenants added to';

@@ -80,6 +80,27 @@ class MultiTenantTool {
 
     /**
      * @var array associative array (tablename => classname) with the
-     * Table
+     * TableMerger tools to process all database tables.
+     */
+    protected $tableMergers;
+
+    /**
+     * @var array list of table names processed ny TableMerger's.
+     */
+    protected $tablesProcessedByTableMergers;
+
+    /**
+     * @var bool if true then never commit the transaction, used for testing.
+     */
+    protected $alwaysRollback;
+
+    /**
+     * @var bool if true then write out all sql, used for testing.
+     */
+    protected $debugdb;
+
+    /**
+     * Initializes
+     * @param tool_multitenantuser_config $config local configuration.
      */
 }
