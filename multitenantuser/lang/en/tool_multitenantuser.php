@@ -51,8 +51,8 @@ $string['cligathering:description'] = "Introduce pairs of user's id to merge the
 second one. The first user id (fromid) will 'lose' all its data to be 'migrated'\n
 into the second one (toid). The user 'toid' will include data from both users.";
 $string['cligathering:stopping'] = 'To stop merging, Ctrl+C or type -1 either on fromid or toid fields.';
-$string['cligathering:fromid'] = 'Source user id (fromid):';
-$string['cligathering:toid'] =   'Target user id   (toid):';
+$string['cligathering:fromid'] = 'User id (fromid):';
+$string['cligathering:tenantid'] =   'Tenant id   (tenantid):';
 $string['adding'] = 'Tenants added.';
 $string['useraddingheader'] = '&laquo;{$a->username}&raquo; (user ID = {$a->id})';
 $string['into'] = 'tenants added to';
@@ -68,6 +68,7 @@ $string['dbko_transactions'] = '<strong>Merge failed!</strong> <br/>Your databas
 $string['dbko_no_transactions'] = '<strong>Merge failed!</strong> <br/>Your database engine
     does not support transactions. Therefore, your database <strong>has been updated</strong>.
     Your database status may be inconsistent.';
+$string['errordatabase'] = 'Error: Database type {$a} not supported.';
 
 // Progress bar
 $string['choose_users'] = 'Choose user';
@@ -91,3 +92,13 @@ $string['errortransactionsonly'] = 'Error: transactions are required, but your d
     Please, review plugin settings to set up them accordingly.';
 $string['eventusermergedsuccess'] = 'Merging success';
 $string['eventusermergedfailure'] = 'Merge failed';
+
+$string['starttime'] = 'Started at {$a}';
+$string['finishtime'] = 'Finished at {$a}';
+$string['timetaken'] = 'Took {$a} seconds';
+$string['uniquekeynewidtomaintain'] = 'Keep new user\'s data';
+$string['uniquekeynewidtomaintain_desc'] = 'In case of conflict, 
+    like when the user.id related column is a unique key, this plugin will keep 
+    data from new user (by default). This also means that data from old user is 
+    deleted to keep the consistence. Otherwise, if you uncheck this option, 
+    data from old user will be kept.';

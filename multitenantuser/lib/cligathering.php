@@ -76,5 +76,46 @@ class CLIGathering implements Gathering {
         while ($record->userid <= 0 && $record->userid != -1) {
             $record->userid = intval(cli_input(get_string('cligathering:fromid', 'tool_multitenantuser')));
         }
+
+        //if we have to exit, do it now
+        if ($record->userid == -1) {
+            $this->end = true;
+            return;
+        }
+
+        //otherwise, ask for the tenant id
+        $record->tenantid = 0;
+        while ($record->tenantid <= 0 && $record->tenantid != -1) {
+            $record->tenant = intval(get_string('cligathering:tenantid', 'tool_multitenantuser'));
+        }
+
+        //updates related to iterator fields.
+        $this->end = $record->tenantid == -1;
+        $this->current = $record;
+        $this->index++;
+    }
+
+    /**
+     * Tells whether to conclude iteration.
+     * @return bool true if continuing iteration, false to conclude
+     */
+    public function valid() {
+        return !$this->end;
+    }
+
+    /**
+     * Gets the current processed user.
+     * @return stdClass object with userid and tenantid fields
+     */
+    public function current() {
+        return $this->current;
+    }
+
+    /**
+     * Gets current int zero-based index.
+     * @return int zero-based index value
+     */
+    public function key() {
+        return $this->index;
     }
 }
