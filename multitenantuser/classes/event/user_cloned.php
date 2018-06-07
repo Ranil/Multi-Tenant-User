@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +16,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Version information
  *
  * @package     tool_multitenantuser
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace tool_multitenantuser\event;
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_multitenantuser';
-$plugin->release = '0.0.2';
-$plugin->version = 2018060709;
-$plugin->requires = 2017051500;
-$plugin->maturity = MATURITY_ALPHA;
+abstract class user_cloned extends \core\event\base {
+    protected function init() {
+        $this->data['crud'] = 'u';
+        $this->data['level'] = self::LEVEL_OTHER;
+        $this->data['edulevel'] = self::LEVEL_OTHER;
+    }
+
+    protected function get_legacy_eventdata() {
+        $data = new \stdClass();
+        $userinvolved = $this->other['userinvolved'];
+        $data->userid = $userinvolved['userid'];
+        $data->tenantid = $userinvolved['tenantid'];
+        $data->log = $this->other['log'];
+        $data->timemodified = $this->timecreated;
+        return $data;
+    }
+}

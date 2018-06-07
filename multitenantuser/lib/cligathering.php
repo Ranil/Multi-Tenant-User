@@ -56,6 +56,7 @@ class CLIGathering implements Gathering {
 
     /**
      * Asks via command line for user to clone and where to, with a header telling what to do.
+     * @throws coding_exception
      */
     public function rewind() {
         cli_heading(get_string('pluginname', 'tool_multitenantuser'));
@@ -67,6 +68,7 @@ class CLIGathering implements Gathering {
     /**
      * Asks for the next set of data to use.
      * Also detects when anything but a number is introduced, to re-ask for any id's.
+     * @throws coding_exception
      */
     public function next() {
         $record = new stdClass();

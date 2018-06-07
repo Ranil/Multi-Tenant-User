@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +16,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Version information
  *
  * @package     tool_multitenantuser
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace tool_multitenantuser\event;
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_multitenantuser';
-$plugin->release = '0.0.2';
-$plugin->version = 2018060709;
-$plugin->requires = 2017051500;
-$plugin->maturity = MATURITY_ALPHA;
+/**
+ * Called when cloning user failed.
+ */
+class user_cloned_failure extends user_cloned {
+
+    public static function get_name() {
+        return get_string('eventuserclonedfailure', 'tool_multitenantuser')''
+    }
+
+    public function get_description() {
+        return "The user {$this->userid} failed cloning all data under '{$this->other['userinvolved']['tenantid']}'
+                company with new user id '{$this->other['userinvolved']['newid']}'";
+    }
+}

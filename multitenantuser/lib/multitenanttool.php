@@ -103,6 +103,9 @@ class MultiTenantTool {
      * Initializes
      * @param tool_multitenantuser_config $config local configuration.
      * @param tool_multitenantuser_logger $logger logger facility to save results
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function __construct(tool_multitenantuser_config $config = null, tool_multitenantuser_logger $logger = null) {
         global $CFG;
@@ -195,10 +198,11 @@ class MultiTenantTool {
      * @param int $userid The user to clone
      * @param int $tenantid The tenant to clone to
      * @return array An array(bool, array, int) having the following cases:
-     * if array(true, log, id) cloning was successful and log contains all actions done;
-     * if array(false, errors, id) cloning was aborted and errors contain the list of errors.
-     * The last id is the log id of the cloning action for later visual revision.
+     *         if array(true, log, id) cloning was successful and log contains all actions done;
+     *         if array(false, errors, id) cloning was aborted and errors contain the list of errors.
+     *         The last id is the log id of the cloning action for later visual revision.
      * @throws dml_exception
+     * @throws coding_exception
      */
      public function cloneUser($userid, $tenantid) {
          list($success, $log) = $this->_cloneUser($userid, $tenantid);
@@ -221,16 +225,17 @@ class MultiTenantTool {
          return array($success, $log, $logid);
      }
 
-     /**
-      * Real method that performs the cloning action.
-      * @global object $CFG
-      * @global moodle_database $DB
-      * @param int $userid The user to clone
-      * @param int $tenantid The tenant to clone to
-      * @return array An array(bool, array) having the following cases:
-      * if array(true, log) cloning was successful and log contains all actions done;
-      * if array(false, errors) cloning was aborted and errors contains the list of errors.
-      */
+    /**
+     * Real method that performs the cloning action.
+     * @global object $CFG
+     * @global moodle_database $DB
+     * @param int $userid The user to clone
+     * @param int $tenantid The tenant to clone to
+     * @return array An array(bool, array) having the following cases:
+     *         if array(true, log) cloning was successful and log contains all actions done;
+     *         if array(false, errors) cloning was aborted and errors contains the list of errors.
+     * @throws coding_exception
+     */
      private function _cloneUser($userid, $tenantid) {
          global $CFG, $DB;
 
@@ -256,6 +261,79 @@ class MultiTenantTool {
 
          try {
 
+         } catch (Exception $e) {
+
          }
+     }
+
+    /**
+     * Check whether Moodle's current database type is supported.
+     * If not, execution is aborted with an error message,
+     * checking whether it is on a CLI script or on web.
+     *
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+     private function checkDatabaseSupport() {
+         global $CFG;
+
+         if(!$this->supportedDatabase) {
+             if(CLI_SCRIPT) {
+                 cli_error('Error: ' . __METHOD__ . ':: ' . get_string('errordatabase', 'tool_multitenantuser', $CFG->dbtype));
+             } else {
+                 print_error('errordatabase', 'tool_multitenantuser', new moodle_url('/admin/tool/multitenantuser.php'),
+                     $CFG->dbtype);
+             }
+         }
+     }
+
+    /**
+     * Checks whether the database supports transactions.
+     * If settings are set to allow only transactions,
+     * this method aborts.
+     *
+     * @return bool true if database transactions are supported.
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+     private function checkTransactionSupport() {
+         global $CFG;
+
+         $transactionsSupported = tool_multitenantuser_transactionssupported();
+         $forceOnlyTransactions = get_config('tool_multitenantuser', 'transactions_only');
+
+         if (!$transactionsSupported && $forceOnlyTransactions) {
+             if (CLI_SCRIPT) {
+                 cli_error('Error: ' . __METHOD__ . ':: ' . get_string('errortransactionsonly',
+                         'tool_multitenantuser', $CFG->dbtype));
+             } else {
+                 print_error('errortransactionsonly', 'tool_multitenantuser',
+                     new moodle_url('/admin/tool/mergeusers/index.php'), $CFG->dbtype);
+             }
+         }
+
+         return $transactionsSupported;
+     }
+
+    /**
+     * Gets the matching fields on the given $tableName against the given $userFields.
+     * @param string $tableName database table name to analyze, WITH $CFG->prefix.
+     * @param string $userFields candidate user fields to check.
+     * @return bool | array false if no matching field name;
+     *         string  array with matching field names otherwise.
+     * @throws dml_exception
+     */
+     private function getCurrentUserFieldNames($tableName, $userFields) {
+         global $CFG, $DB;
+         return $DB->get_fieldset_sql("
+            SELECT DISTINCT column_name
+            FROM
+                INFORMATION_SCHEMA.Columns
+            WHERE
+                TABLE_NAME = ? AND
+                (TABLE_SCHEMA = ? OR TABLE_CATALOG = ?) AND
+                COLUMN_NAME IN (" . $userFields . ")",
+             array($tableName, $CFG->dbname, $CFG->dbname));
      }
 }

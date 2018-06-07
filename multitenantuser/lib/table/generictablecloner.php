@@ -73,7 +73,7 @@ class GenericTableCloner implements TableCloner {
 
             if (isset($data['compoundIndex'])) {
                 $this->mergeCompoundIndex($data, $fieldName,
-                    $this->getOtherFieldsOnCompoundIndex($fieldName, $data['compoundIndex']), $recordsToModify,
+                    $this->getOtherFieldsInCompoundIndex($fieldName, $data['compoundIndex']), $recordsToModify,
                     $actionLog, $errorMessages);
             }
 
@@ -143,5 +143,23 @@ class GenericTableCloner implements TableCloner {
             ")";
     }
 
-
+    /**
+     * Gets the field names in a compound index, excluding the $userFields,
+     * returning only the $otherFields.
+     *
+     * @param string $userField current user-related field being analyzed.
+     * @param array $compoundIndex related config data for the compound index.
+     * @return array an array with the other field names of the compound index.
+     */
+    protected function getOtherFieldsInCompoundIndex($userField, $compoundIndex) {
+        //alternate column names when both fields are user-related
+        if (sizeof($compoundIndex['userfield']) > 1) {
+            $all = array_merge($compoundIndex['userfield'], $compoundIndex['otherfields']);
+            $all = array_flip($all);
+            unset($all[$userField]);
+            return array_flip($all);
+        }
+        //default behavior
+        return $compoundIndex['otherfields'];
+    }
 }

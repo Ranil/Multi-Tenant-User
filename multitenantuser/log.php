@@ -19,54 +19,45 @@
  * Version information
  *
  * @package     tool_multitenantuser
- * @category    string
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require('../../../config.php');
 
-global $CFG;
-global $DB;
-global $PAGE;
-global $SESSION;
+global $CFG, $DB, $PAGE;
 
-// Report all PHP errors
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-require_once($CFG->libdir . '/blocklib.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/accesslib.php');
-require_once($CFG->libdir . '/weblib.php');
-
-require_once('./index_form.php');
+require_once($CFG->dirroot . '/lib/adminlib.php');
+require_once('lib/autoload.php');
 
 require_login();
 require_capability('tool/multitenantuser:addtenant', context_system::instance());
+admin_externalpage_setup('tool_multitenantuser_viewlog');
+$id = required_param('id', PARAM_INT);
 
+$renderer = $PAGE->get_renderer('tool_multitenantuser');
+$logger = new tool_multitenantuser_logger();
 
-//Get possible posted parameters
-$option = optional_param('option', NULL, PARAM_TEXT);
-if(!$option) {
-    if(optional_param('clearselection', false, PARAM_TEXT)) {
-        $option = 'clearselection';
-    } else if(optional_param('addtenants', false, PARAM_TEXT)) {
-        $option = 'addtenants';
-    }
+$log = $logger->getDetail($id);
+
+if( empty($log)) {
+    print_error('wronglogid', 'tool_multitenantuser', new moodle_url('/admin/tool/multitenantuser/index.php'));
 }
 
-//Define form
-$multitenantform = new multitenantform();
-$renderer = $PAGE->get_renderer('tool_multitenantuser');
+$user = $DB->get_record('user', array('id' => $log->userid), 'id, username');
+if (!$user) {
+    $user = new stdClass();
+    $user->id = $log->userid;
+    $user->username = get_string('TEMP LOG DATA, FIX ME IN LOG.PHP');
+}
 
-$data = $multitenantform->get_data();
+$tenant = $DB->get_record('company', array('id' => $log->tenantid), 'id, shortname');
+if (!$tenant) {
+    $tenant = new stdClass();
+    $tenant->id = $log->tenantid;
+    $tenant->shortname = get_string('TEMP LOG DATA, FIX ME IN LOG.PHP');
+}
 
-$sql = 'SELECT * FROM mdl_user WHERE id = 96';
-$result = $DB->get_records_sql($sql);
-
-echo '<pre>';
-print_r($result[96]->username);
-echo '</pre>';
-var_dump($result);
-//ADD TOOL CLASS
-//ADD SEARCH CLASS
+echo $renderer->results_page($user, $tenant, $log->success, $log->log, $log->id);

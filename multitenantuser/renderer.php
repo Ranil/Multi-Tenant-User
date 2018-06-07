@@ -95,6 +95,7 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param int $step step to show in the index page.
      * @param UserSelectTable $ust table for user after searching
      * @return string html to show on index page.
+     * @throws coding_exception
      */
     public function index_page(moodleform $mform, $step, UserSelectTable $ust = NULL) {
         $output = $this->header();
@@ -151,7 +152,8 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      *
      * @param string $message The error message
      * @param bool $showreturn Shows a return button to the index page
-     *
+     * @throws coding_exception
+     * @throws moodle_exception
      */
     public function mu_error($message, $showreturn = true) {
         $errorhtml = '';
@@ -178,6 +180,8 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param array $data logs actions done if success, lists errors on failure.
      * @param id $logid id of the record with the whole detail of the action.
      * @return string html with the results.
+     * @throws coding_exception
+     * @throws moodle_exception
      */
     public function results_page($to, array $tenants, $success, array $data, $logid) {
         if($success) {
@@ -248,6 +252,7 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param int $userid user.id
      * @param object $user an object with firstname and lastname attributes.
      * @return string the corresponding HTML.
+     * @throws moodle_exception
      */
     public function show_user($userid, $user)
     {
@@ -263,9 +268,11 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
     /**
      * Produces the page with the list of logs.
      * TODO: make pagination.
-     * @global type $CFG
      * @param array $logs array of logs.
      * @return string the corresponding HTML.
+     * @throws coding_exception
+     * @throws moodle_exception
+     * @global type $CFG
      */
     public function logs_page($logs)
     {
