@@ -79,6 +79,7 @@ $string['results'] = 'Results and log';
 $string['error_return'] = 'Return to search form';
 $string['no_saveselection'] = 'You did not select a user.';
 $string['invalid_option'] = 'Invalid form option';
+$string['invaliduser'] = "User doesn't exist!";
 
 $string['viewlog'] = 'See merging logs';
 $string['loglist'] = 'All these records are merging actions done, showing if they went ok:';
