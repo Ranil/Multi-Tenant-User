@@ -33,59 +33,53 @@ require_once($CFG->dirroot . '/lib/clilib.php');
 require_once(__DIR__ . '/autoload.php');
 require_once($CFG->dirroot . '/lib/outputcomponents.php');
 
-class UserSelectTable extends html_table implements renderable {
+class TenantSelectTable extends html_table implements renderable {
 
     /** @var tool_multitenantuser_renderer $renderer */
     protected $renderer;
 
     /**
-     * Call parent construct
+     * Call parent constructor
      *
-     * @param array $users
+     * @param array $tenants
      * @param tool_multitenantuser_renderer $renderer
-     *
-     */
-    public function __construct($users, $renderer)
-    {
-        parent::__construct();
-        $this->renderer = $renderer;
-        $this->buildtable($users);
-    }
-
-    /**
-     * Build the user select table using the extension of html_table
-     *
-     * @param array $users array of user results
      * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function buildtable($users) {
-        // Reset any existing data
+    public function __construct($tenants, $renderer) {
+        parent::__construct();
+        $this->renderer = $renderer;
+        $this->buildtable($tenants);
+    }
+
+    /**
+     * Build the tenant select table using the extension of html_table
+     *
+     * @param array $tenants array of tenant results
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    protected function buildtable($tenants) {
+        // reset any existing data
         $this->data = array();
 
-        $this->id = 'multitenant_user_tool_user_select_table';
+        $this->id = 'multitenant_user_tool_tenant_select_table';
         $this->attributes['class'] = 'generaltable boxaligncenter';
 
         $columns = array(
-            'col_select_user' => get_string('user', 'tool_multitenantuser'),
-            'col_userid' => 'ID',
-            'col_username' => get_string('user'),
-            'col_email' => get_string('email'),
-            'col_idnumber' => get_string('idnumber'),
+            'col_select_tenant' => get_string('tenants', 'tool_multitenantuser'),
+            'col_tenantid' => 'ID',
+            'col_name' => 'Company',
         );
 
         $this->head = array_values($columns);
         $this->colclasses = array_keys($columns);
 
-        foreach ($users as $userid => $user) {
+        foreach ($tenants as $tenantid => $tenant) {
             $row = array();
-            $spanclass = ($user->suspended) ? ('usersuspended') : ('');
-            $row[] = html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'user', 'value' => $userid, 'id' => 'user' . $userid));
-            $row[] = html_writer::tag('span', $user->id, array('class' => $spanclass));
-            $row[] = html_writer::tag('span', $this->renderer->show_user($user->id, $user), array('class' => $spanclass));
-            $row[] = html_writer::tag('span', $user->email, array('class' => $spanclass));
-            $row[] = html_writer::tag('span', $user->idnumber, array('class' => $spanclass));
-            $this->data[] = $row;
+            $row[] = html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'tenant', 'value' => $tenantid, 'id' => 'tenant' . $tenantid));
+            $row[] = html_writer::tag('span', $tenantid->id);
+            $row[] = html_writer::tag('span', $tenant);
         }
     }
 }

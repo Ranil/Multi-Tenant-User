@@ -180,13 +180,3 @@ if(!empty($option)) {
     // no data submitted, default to search form
     echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_STEP);
 }
-
-$sql = 'SELECT * FROM mdl_user WHERE id = 96';
-$result = $DB->get_records_sql($sql);
-
-echo '<pre>';
-print_r($result[96]->username);
-echo '</pre>';
-var_dump($result);
-//ADD TOOL CLASS
-//ADD SEARCH CLASS

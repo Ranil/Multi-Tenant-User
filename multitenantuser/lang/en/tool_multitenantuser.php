@@ -42,8 +42,8 @@ $string['searchuser_help'] = 'Enter a username, first/last name, email address
     want to search through a particular field.';
 $string['userselecttable_legend'] = '<b>Select User to add tenants</b>';
 $string['saveselection_submit'] = 'Save selection';
+$string['tenantselecttable_legend'] = '<b>Select Tenant</b>';
 $string['userreviewtable_legend'] = '<b>Review User and Tenants</b>';
-$string['saveselection_submit'] = 'Save selection';
 $string['clear_selection'] = 'Clear current selection';
 $string['user'] = 'User';
 $string['tenants'] = 'Tenants';

@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once __DIR__ . '/select_form.php';
 require_once __DIR__ . '/review_form.php';
+require_once __DIR__ . '/tselect_form.php';
 require_once($CFG->dirroot . '/'.$CFG->admin.'/tool/multitenantuser/lib.php');
 
 class tool_multitenantuser_renderer extends plugin_renderer_base {
@@ -65,6 +66,7 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * Returns the HTML for the progress bar, according to the current step.
      * @param int $step current step
      * @return string HTML for the progress bar.
+     * @throws coding_exception
      */
     public function build_progress_bar($step)
     {
@@ -94,10 +96,11 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param moodleform $mform form for merging users.
      * @param int $step step to show in the index page.
      * @param UserSelectTable $ust table for user after searching
+     * @param TenantSelectTable $tst table for tenant after searching
      * @return string html to show on index page.
      * @throws coding_exception
      */
-    public function index_page(moodleform $mform, $step, UserSelectTable $ust = NULL) {
+    public function index_page(moodleform $mform, $step, UserSelectTable $ust = NULL, TenantSelectTable $tst = NULL) {
         $output = $this->header();
         $output .= $this->heading_with_help(get_string('addtenants', 'tool_multitenantuser'), 'header', 'tool_multitenantuser');
 
@@ -108,9 +111,10 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
                 break;
             case self::INDEX_PAGE_SEARCH_AND_SELECT_STEP:
                 $output .= $this->moodleform($mform);
-                if($ust !== NULL) {
+                if($ust !== NULL && $tst !== NULL) {
                     $this->page->requires->js_init_call('M.tool_multitenantuser.init_select_table', array());
                     $output .= $this->render_user_select_table($ust);
+                    $output .= $this->render_tenant_select_table($tst);
                 }
                 break;
             case self::INDEX_PAGE_CONFIRMATION_STEP:
@@ -131,6 +135,10 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
     public function render_user_select_table(UserSelectTable $ust)
     {
         return $this->moodleform(new selectuserform($ust));
+    }
+
+    public function render_tenant_select_table(TenantSelectTable $tst) {
+        return $this->moodleform(new tenantselectform($tst));
     }
 
     /**
@@ -276,7 +284,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      */
     public function logs_page($logs)
     {
-        //this is going to error
         global $CFG;
 
         $output = $this->header();
