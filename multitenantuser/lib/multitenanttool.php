@@ -201,7 +201,6 @@ class MultiTenantTool {
      *         if array(true, log, id) cloning was successful and log contains all actions done;
      *         if array(false, errors, id) cloning was aborted and errors contain the list of errors.
      *         The last id is the log id of the cloning action for later visual revision.
-     * @throws dml_exception
      * @throws coding_exception
      */
      public function cloneUser($userid, $tenantid) {
@@ -234,7 +233,6 @@ class MultiTenantTool {
      * @return array An array(bool, array) having the following cases:
      *         if array(true, log) cloning was successful and log contains all actions done;
      *         if array(false, errors) cloning was aborted and errors contains the list of errors.
-     * @throws coding_exception
      */
      private function _cloneUser($userid, $tenantid) {
          global $CFG, $DB;
@@ -266,9 +264,6 @@ class MultiTenantTool {
          }
      }
 
-    /**
-     * @throws dml_exception
-     */
     private function init() {
          global $CFG, $DB;
 
@@ -363,9 +358,6 @@ class MultiTenantTool {
      * this method aborts.
      *
      * @return bool true if database transactions are supported.
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
      */
      private function checkTransactionSupport() {
          global $CFG;
@@ -395,15 +387,16 @@ class MultiTenantTool {
      */
      private function getCurrentUserFieldNames($tableName, $userFields){
          global $CFG, $DB;
-         /* return $DB->get_fieldset_sql("
+         return $DB->get_fieldset_sql("
             SELECT DISTINCT column_name
             FROM
                 INFORMATION_SCHEMA.Columns
             WHERE
                 TABLE_NAME = ? AND
                 (TABLE_SCHEMA = ? OR TABLE_CATALOG=?) AND
-                COLUMN_NAME IN (" . $userFields . ")",
-             array($tableName, $CFG->dbname, $CFG->dbname)); */
+                COLUMN_NAME IN (" . $userFields . "')", //THIS ERROR IS OK IDK WHY IT SHOWS BAD BUT IT GOOD
+             array($tableName, $CFG->dbname, $CFG->dbname));
+         echo "GETTING CURRENT USER FIELD NAMES";
          return null;
         }
 }

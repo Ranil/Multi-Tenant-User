@@ -43,7 +43,7 @@ class MultiTenantSearch {
      */
     public function search_users($input, $searchfield) {
         global $DB;
-
+        echo "SEARCHING FOR USERS WITH INPUT " . $input . " AND FIELD " . $searchfield;
         switch ($searchfield) {
             case 'id':
                 $params = array(

@@ -60,12 +60,12 @@ class UserReviewTable extends html_table implements renderable {
         // Call parent constructor
         parent::__construct();
 
-        if (!empty($SESSION->mut)) {
-            if (!empty($SESSION->mut->user)) {
-                $this->user = $SESSION->mut->user;
+        if (!empty($SESSION->mtt)) {
+            if (!empty($SESSION->mtt->user)) {
+                $this->user = $SESSION->mtt->user;
             }
-            if (!empty($SESSION->mut->tenants)) {
-                $this->tenants = $SESSION->mut->tenants;
+            if (!empty($SESSION->mtt->tenants)) {
+                $this->tenants = $SESSION->mtt->tenants;
             }
         }
         $this->buildtable();

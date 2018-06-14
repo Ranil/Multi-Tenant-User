@@ -56,7 +56,6 @@ class UserSelectTable extends html_table implements renderable {
      * Build the user select table using the extension of html_table
      *
      * @param array $users array of user results
-     * @throws coding_exception
      * @throws moodle_exception
      */
     protected function buildtable($users) {
