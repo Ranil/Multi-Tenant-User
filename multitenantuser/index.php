@@ -40,10 +40,14 @@ require_once($CFG->libdir . '/accesslib.php');
 require_once($CFG->libdir . '/weblib.php');
 
 require_once('./index_form.php');
+require_once __DIR__ . '/lib/multitenanttool.php';
+require_once __DIR__ . '/lib/usersearch.php';
 
 require_login();
 require_capability('tool/multitenantuser:addtenant', context_system::instance());
 
+$PAGE->set_url(new moodle_url('/admin/tool/multitenantuser/'));
+$PAGE->set_context(context_system::instance());
 
 //Get possible posted parameters
 $option = optional_param('option', NULL, PARAM_TEXT);

@@ -51,6 +51,7 @@
  *
  * If the key 'both' appears, means that both columns are user-related and must be searched for both.
  * See the README.txt for more details on special cases.
+ * @property mixed|null userfieldnames
  */
 class tool_multitenantuser_config {
     /**
@@ -68,5 +69,36 @@ class tool_multitenantuser_config {
      */
     private function __construct() {
         $config = include dirname(__DIR__) . '/config/config.php';
+
+        if (file_exists(dirname(__DIR__) . '/config/config.local.php')) {
+            $localconfig = include dirname(__DIR__) . '/config/config.local.php';
+            $config = array_replace_recursive($config, $localconfig);
+        }
+        $this->config = $config;
+    }
+
+    /**
+     * Singleton method
+     * @return tool_multitenantuser_config singleton instance.
+     */
+    public static function instance() {
+        if (is_null(self::$instance) || defined('PHPUNIT_TEST') || defined('BEHAT_SITE_RUNNING')) {
+            self::$instance = new tool_multitenantuser_config();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Accessor to properties from the current config as attributes of a standard object.
+     * @param string $name name of attribute; by now only:
+     * 'gathering', 'exceptions', 'compoundindexes', 'userfieldnames'.
+     * @return mixed|null if $name is not a valid property name of the current configuration;
+     * string or array having the value of the $name property.
+     */
+    public function __get($name) {
+        if (isset($this->config[$name])) {
+            return $this->config[$name];
+        }
+        return null;
     }
 }

@@ -33,7 +33,6 @@ class multitenantform extends moodleform {
         $mform =& $this->_form;
 
         $searchfields = array(
-            'idnumber' => get_string('idnumber'),
             ''          => get_string('all'),
             'id'        => 'Id',
             'username'  => get_string('username'),
@@ -47,8 +46,8 @@ class multitenantform extends moodleform {
         $searchuser = array();
         $searchuser[] = $mform->createElement('text', 'searchargs');
         $searchuser[] = $mform->createElement('select', 'searchfield', '', $searchfields, '');
-        $mform->addGroup($searchuser, 'searchuser', get_string('searchuser', 'tool_multitenantuser'));
-        $mform->setType('searchgroup[searcharg]', PARAM_TEXT);
+        $mform->addGroup($searchuser, 'searchgroup', get_string('searchuser', 'tool_multitenantuser'));
+        $mform->setType('searchgroup[searchargs]', PARAM_TEXT);
         $mform->addHelpButton('searchgroup', 'searchuser', 'tool_multitenantuser');
 
         $this->add_action_buttons(false, get_string('search'));

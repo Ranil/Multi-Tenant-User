@@ -40,7 +40,6 @@ class MultiTenantSearch {
      * @param mixed $input
      * @param string $searchfield
      * @return array $results
-     * @throws dml_exception
      */
     public function search_users($input, $searchfield) {
         global $DB;
@@ -50,7 +49,7 @@ class MultiTenantSearch {
                 $params = array(
                     'userid' => '%' . $input . '%',
                 );
-                $sql = 'SELECT * FROM {user} WHERE id LIKE :userid';
+                $sql = 'SELECT * FROM `mdl_user` WHERE id LIKE ' . $input;
                 break;
             case 'username':
                 $params = array(
@@ -75,12 +74,6 @@ class MultiTenantSearch {
                     'email' => '%' . $input . '%',
                 );
                 $sql = 'SELECT * FROM {user} WHERE email LIKE :email';
-                break;
-            case 'idnumber':
-                $params = array(
-                    'idnumber' => '%' . $input . '%',
-                );
-                $sql = 'SELECT * FROM {user} WHERE idnumber LIKE :idnumber';
                 break;
             default:
                 $params = array(
@@ -117,7 +110,6 @@ class MultiTenantSearch {
      * @param mixed $input
      * @param string $searchfield
      * @return array $results
-     * @throws dml_exception
      */
     public function search_tenants($input, $searchfield) {
         global $DB;
@@ -167,7 +159,6 @@ class MultiTenantSearch {
      * @param $uinfo
      * @param $column
      * @return array
-     * @throws coding_exception
      */
     public function verify_user($uinfo, $column) {
         global $DB;
@@ -185,7 +176,6 @@ class MultiTenantSearch {
      * @param $tinfo
      * @param $column
      * @return array
-     * @throws coding_exception
      */
     public function verify_tenant($tinfo, $column) {
         global $DB;

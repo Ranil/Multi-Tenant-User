@@ -56,23 +56,14 @@ return array(
             'userfield' => array('userid'),
             'otherfields' => array('itemid'),
         ),
-        'groups_members' => array(
-            'userfield' => array('userid'),
-            'otherfields' => array('groupid', 'timeadded'),
-        ),
         'course_completions' => array(
             'userfield' => array('userid'),
             'otherfields' => array('course', 'timeenrolled', 'timestarted', 'timecompleted'),
-        ),
-        'role_assignments' => array(
-            'userfield' => array('userid'),
-            'otherfields' => array('contextid', 'roleid', 'timemodified', 'modifierid'), // mdl_roleassi_useconrol_ix (not unique)
         ),
         'course_modules_completion' => array( // mdl_courmoducomp_usecou_uix (unique)
             'userfield' => array('userid'),
             'otherfields' => array('coursemoduleid', 'completionstate', 'viewed', 'timemodified'),
         ),
-
         'badge_issued' => array( // unique key mdl_badgissu_baduse_uix
             'userfield' => array('userid'),
             'otherfields' => array('badgeid', 'dateissued'),
@@ -107,11 +98,10 @@ return array(
         'default' => array('authorid', 'reviewerid', 'userid', 'user_id', 'id_user', 'user'), //may appear compound index
     ),
 
-    // TableMergers to process each database table.
-    // 'default' is applied when no specific TableMerger is specified.
-    'tablemergers' => array(
-        'default' => 'GenericTableMerger',
-        'user_enrolments' => 'UserEnrolmentsMerger',
+    // TableCloners to process each database table.
+    // 'default' is applied when no specific TableCloner is specified.
+    'tablecloners' => array(
+        'default' => 'GenericTableCloner',
     ),
 
     'alwaysRollback' => false,

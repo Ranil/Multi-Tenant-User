@@ -30,7 +30,7 @@ global $CFG;
 
 require_once $CFG->dirroot . '/lib/clilib.php';
 require_once __DIR__ . '/autoload.php';
-require_once($CFG->dirroot . '/'.$CFG->admin.'/tool/mergeusers/lib.php');
+require_once($CFG->dirroot . '/'.$CFG->admin.'/tool/multitenantuser/lib.php');
 
 class MultiTenantTool {
 
@@ -80,14 +80,14 @@ class MultiTenantTool {
 
     /**
      * @var array associative array (tablename => classname) with the
-     * TableMerger tools to process all database tables.
+     * TableCloner tools to process all database tables.
      */
     protected $tableMergers;
 
     /**
-     * @var array list of table names processed ny TableMerger's.
+     * @var array list of table names processed ny TableCloner's.
      */
-    protected $tablesProcessedByTableMergers;
+    protected $tablesProcessedByTableCloners;
 
     /**
      * @var bool if true then never commit the transaction, used for testing.
@@ -153,32 +153,32 @@ class MultiTenantTool {
         //Initializes user-related field names.
         $userFieldNames = array();
         foreach ($config->userfieldnames as $tablename => $fields) {
-            $userFieldNames[$tablename] = "'" . implode("','", $fields . "'");
+            $userFieldNames[$tablename] = "'" . implode("','", $fields);
         }
         $this->userFieldNames = $userFieldNames;
 
-        // Load available TableMerger tools.
+        // Load available TableCloner tools.
         $tableMergers = array();
-        $tablesProcessedByTableMergers = array();
-        foreach ($config->tablemergers as $tableName => $class) {
+        $tablesProcessedByTableCloners = array();
+        foreach ($config->tablecloners as $tableName => $class) {
             $tm = new $class();
-            //ensure any provided class is a class of TableMerger
-            if(!$tm instanceof TableMerger) {
+            //ensure any provided class is a class of TableCloner
+            if(!$tm instanceof TableCloner) {
                 //aborts execution by showing an error.
                 if(CLI_SCRIPT) {
-                    cli_error('Error: ' . __METHOD__ . ':: ' . get_string('notablemergerclass', 'tool_multitenantuser',
+                    cli_error('Error: ' . __METHOD__ . ':: ' . get_string('notableclonerclass', 'tool_multitenantuser',
                                     $class));
                 } else {
-                    print_error('notablemergerclass', 'tool_multitenantuser',
+                    print_error('notableclonerclass', 'tool_multitenantuser',
                         new moodle_url('/admin/tool/multitenantuser/index.php'), $class);
                 }
             }
             //append any additional tables to skip.
-            $tablesProcessedByTableMergers = array_merge($tablesProcessedByTableMergers, $tm->getTablesToSkip());
+            $tablesProcessedByTableCloners = array_merge($tablesProcessedByTableCloners, $tm->getTablesToSkip());
             $tableMergers[$tableName] = $tm;
         }
         $this->tableMergers = $tableMergers;
-        $this->tablesProcessedByTableMergers = array_flip($tablesProcessedByTableMergers);
+        $this->tablesProcessedByTableCloners = array_flip($tablesProcessedByTableCloners);
 
         $this->alwaysRollback = !empty($config->alwaysRollback);
         $this->debugdb = !empty($config->debugdb);
@@ -260,19 +260,89 @@ class MultiTenantTool {
          $transaction = $DB->start_delegated_transaction();
 
          try {
-
+            // TODO: actually do things lol
          } catch (Exception $e) {
 
          }
      }
 
     /**
+     * @throws dml_exception
+     */
+    private function init() {
+         global $CFG, $DB;
+
+         $userFieldsPerTable = array();
+
+         $tableNames = $DB->get_records_sql($this->sqlListTables);
+         $prefixLength = strlen($CFG->prefix);
+
+         foreach ($tableNames as $fullTableName => $toIgnore) {
+             if (!trim($fullTableName)) {
+                 // this section should never be executed due to the way Moodle returns its resultsets
+                 // skipping due to blank table name
+                 continue;
+             } else {
+                 $tableName = substr($fullTableName, $prefixLength);
+                 // table specified to be excluded
+                 if (isset($this->tablesToSkip[$tableName])) {
+                     $this->tablesSkipped[$tableName] = $fullTableName;
+                     continue;
+                 }
+                 // table specified to be processed additionally by a TableCloner.
+                if (isset($this->tablesProcessedByTableCloners[$tableName])) {
+                     continue;
+                }
+             }
+
+             // detect available user-related fields among database tables.
+             $userFields = (isset($this->userFieldNames[$tableName])) ?
+                 $this->userFieldNames[$tableName] :
+                 $this->userFieldNames['default'];
+
+             $currentFields = $this->getCurrentUserFieldNames($fullTableName, $userFields);
+
+             if ($currentFields !== false && $currentFields !== null) {
+                 $userFieldsPerTable[$tableName] = array_values($currentFields);
+             }
+         }
+
+         $this->userFieldsPerTable = $userFieldsPerTable;
+
+         $existingCompoundIndexes = $this->tablesWithCompoundIndex;
+         foreach ($this->tablesWithCompoundIndex as $tableName => $columns) {
+             $chosenColumns = array_merge($columns['userfield'], $columns['otherfields']);
+
+             $columnNames = array();
+             foreach ($chosenColumns as $columnName) {
+                 $columnNames[$columnName] = 0;
+             }
+
+             $tableColumns = $DB->get_columns($tableName, false);
+
+             foreach ($tableColumns as $column) {
+                 if (isset($columnNames[$column->name])) {
+                     $columnNames[$column->name] = 1;
+                 }
+             }
+
+             // If we find some compound index with missing columns,
+             // it is that loaded configuration does not correspond to current db scheme
+             // and this index does not apply.
+             $found = array_sum($columnNames);
+             if (sizeof($columnNames) !== $found) {
+                 unset($existingCompoundIndexes[$tableName]);
+             }
+         }
+
+         // update the attribute with the current existing compound idexes per table.
+         $this->tablesWithCompoundIndex = $existingCompoundIndexes;
+     }
+
+    /**
      * Check whether Moodle's current database type is supported.
      * If not, execution is aborted with an error message,
      * checking whether it is on a CLI script or on web.
-     *
-     * @throws coding_exception
-     * @throws moodle_exception
      */
      private function checkDatabaseSupport() {
          global $CFG;
@@ -322,18 +392,18 @@ class MultiTenantTool {
      * @param string $userFields candidate user fields to check.
      * @return bool | array false if no matching field name;
      *         string  array with matching field names otherwise.
-     * @throws dml_exception
      */
-     private function getCurrentUserFieldNames($tableName, $userFields) {
+     private function getCurrentUserFieldNames($tableName, $userFields){
          global $CFG, $DB;
-         return $DB->get_fieldset_sql("
+         /* return $DB->get_fieldset_sql("
             SELECT DISTINCT column_name
             FROM
                 INFORMATION_SCHEMA.Columns
             WHERE
                 TABLE_NAME = ? AND
-                (TABLE_SCHEMA = ? OR TABLE_CATALOG = ?) AND
+                (TABLE_SCHEMA = ? OR TABLE_CATALOG=?) AND
                 COLUMN_NAME IN (" . $userFields . ")",
-             array($tableName, $CFG->dbname, $CFG->dbname));
-     }
+             array($tableName, $CFG->dbname, $CFG->dbname)); */
+         return null;
+        }
 }
