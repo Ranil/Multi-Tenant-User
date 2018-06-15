@@ -36,17 +36,18 @@ $string['header_help'] =
 $string['addtenants'] = 'Add tenants to user.';
 $string['addtenants_confirm'] = 'User will be added to tenants.<br />Are you sure you want to continue?';
 $string['privacy:metadata'] = 'The Multi Tenant User plugin does not store any personal data.';
-$string['searchuser'] = 'Search for User';
-$string['searchuser_help'] = 'Enter a username, first/last name, email address
-    or user id to search for potential users. You may also specify if you only
-    want to search through a particular field.';
+$string['searchadvanced'] = "Advanced Search";
+$string['searchadvanced_help'] = "Advanced search";
 $string['userselecttable_legend'] = '<b>Select User to add tenants</b>';
-$string['saveselection_submit'] = 'Save selection';
+$string['saveuselection_submit'] = 'Save user selection';
+$string['savetselection_submit'] = 'Save tenant selection';
 $string['tenantselecttable_legend'] = '<b>Select Tenant</b>';
 $string['userreviewtable_legend'] = '<b>Review User and Tenants</b>';
 $string['clear_selection'] = 'Clear current selection';
 $string['user'] = 'User';
 $string['tenants'] = 'Tenants';
+$string['userid'] = 'User id';
+$string['tenantid'] = 'Tenant id';
 $string['cligathering:description'] = "Introduce pairs of user's id to merge the first one into the\n
 second one. The first user id (fromid) will 'lose' all its data to be 'migrated'\n
 into the second one (toid). The user 'toid' will include data from both users.";
@@ -71,8 +72,14 @@ $string['dbko_no_transactions'] = '<strong>Merge failed!</strong> <br/>Your data
 $string['errordatabase'] = 'Error: Database type {$a} not supported.';
 
 // Progress bar
-$string['choose_users'] = 'Choose user';
-$string['review_users'] = 'Confirm user';
+$string['searchuser'] = 'Search for a User';
+$string['searchuser_help'] = 'Enter a username, first/last name, email address
+    or user id to search for potential users. You may also specify if you only
+    want to search through a particular field.';
+$string['chooseuser'] = 'Select a user';
+$string['searchtenant'] = 'Search for a Company';
+$string['choosetenant'] = 'Select a Company';
+$string['review'] = 'Review selections';
 $string['results'] = 'Results and log';
 
 // Error string
@@ -80,6 +87,7 @@ $string['error_return'] = 'Return to search form';
 $string['no_saveselection'] = 'You did not select a user.';
 $string['invalid_option'] = 'Invalid form option';
 $string['invaliduser'] = "User doesn't exist!";
+$string['invalidtenant'] = "Company doesn't exist!";
 
 $string['viewlog'] = 'See merging logs';
 $string['loglist'] = 'All these records are merging actions done, showing if they went ok:';

@@ -43,13 +43,12 @@ class MultiTenantSearch {
      */
     public function search_users($input, $searchfield) {
         global $DB;
-        echo "SEARCHING FOR USERS WITH INPUT " . $input . " AND FIELD " . $searchfield;
         switch ($searchfield) {
             case 'id':
                 $params = array(
                     'userid' => '%' . $input . '%',
                 );
-                $sql = 'SELECT * FROM `mdl_user` WHERE id LIKE ' . $input;
+                $sql = 'SELECT * FROM {user} WHERE id LIKE :id';
                 break;
             case 'username':
                 $params = array(

@@ -113,7 +113,7 @@ class UserReviewTable extends html_table implements renderable {
             $this->data[] = $userrow;
 
             $tenantsrow = array();
-            $tenantsrow[] = get_string('tenants', 'tool_multitenantsuser');
+            $tenantsrow[] = get_string('tenants', 'tool_multitenantuser');
             if(!empty($this->tenants)) {
                 // TODO: Iterate through tenants array
             }

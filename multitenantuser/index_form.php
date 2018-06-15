@@ -32,6 +32,18 @@ class multitenantform extends moodleform {
 
         $mform =& $this->_form;
 
+        $idstype = array(
+            'username' => get_string('username'),
+            'idnumber' => get_string('idnumber'),
+            'id' => 'Id',
+        );
+
+        $tidtype = array(
+            'name' => get_string('name'),
+            'idnumber' => get_string('idnumber'),
+            'id' => 'Id',
+        );
+
         $searchfields = array(
             ''          => get_string('all'),
             'id'        => 'Id',
@@ -49,6 +61,24 @@ class multitenantform extends moodleform {
         $mform->addGroup($searchuser, 'searchgroup', get_string('searchuser', 'tool_multitenantuser'));
         $mform->setType('searchgroup[searchargs]', PARAM_TEXT);
         $mform->addHelpButton('searchgroup', 'searchuser', 'tool_multitenantuser');
+
+        $mform->addElement('static', 'searchadvanced', get_string('searchadvanced', 'tool_multitenantuser'));
+        $mform->addHelpButton('searchadvanced', 'searchadvanced', 'tool_multitenantuser');
+        $mform->setAdvanced('searchadvanced');
+
+        $user = array();
+        $user[] = $mform->createElement('text', 'userid', "", 'size="10"');
+        $user[] = $mform->createElement('select', 'useridtype', '', $idstype, '');
+        $mform->addGroup($user, 'usergroup', get_string('userid', 'tool_multitenantuser'));
+        $mform->setType('usergroup[userid]', PARAM_RAW_TRIMMED);
+        $mform->setAdvanced('usergroup');
+
+        $tenant = array();
+        $tenant[] = $mform->createElement('text', 'tenantid', "", 'size="10"');
+        $tenant[] = $mform->createElement('select', 'tenantidtype', '', $tidtype, '');
+        $mform->addGroup($tenant, 'tenantgroup', get_string('tenantid', 'tool_multitenantuser'));
+        $mform->setType('tenantgroup[tenantid]', PARAM_RAW_TRIMMED);
+        $mform->setAdvanced('tenantgroup');
 
         $this->add_action_buttons(false, get_string('search'));
     }

@@ -16,7 +16,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Utility file.
+
  *
  * @package     tool_multitenantuser
  * @copyright   2018 Owen Tolman <owen@accenagroup.com>
@@ -82,7 +83,7 @@ class MultiTenantTool {
      * @var array associative array (tablename => classname) with the
      * TableCloner tools to process all database tables.
      */
-    protected $tableMergers;
+    protected $tableCloners;
 
     /**
      * @var array list of table names processed ny TableCloner's.
@@ -103,9 +104,6 @@ class MultiTenantTool {
      * Initializes
      * @param tool_multitenantuser_config $config local configuration.
      * @param tool_multitenantuser_logger $logger logger facility to save results
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public function __construct(tool_multitenantuser_config $config = null, tool_multitenantuser_logger $logger = null) {
         global $CFG;
@@ -120,7 +118,7 @@ class MultiTenantTool {
             case 'sqlsrv':
             case 'mssql':
                 $this->sqlListTables = "SELECT name FROM sys.Tables WHERE name LIKE '" .
-                    $CFG->prefix . "%' AND table_schema = 'public'";
+                    $CFG->prefix . "%' AND type = 'U' ORDER by name";
                 break;
             case 'mysqli':
             case 'mariadb':
@@ -158,7 +156,7 @@ class MultiTenantTool {
         $this->userFieldNames = $userFieldNames;
 
         // Load available TableCloner tools.
-        $tableMergers = array();
+        $tableCloners = array();
         $tablesProcessedByTableCloners = array();
         foreach ($config->tablecloners as $tableName => $class) {
             $tm = new $class();
@@ -175,9 +173,9 @@ class MultiTenantTool {
             }
             //append any additional tables to skip.
             $tablesProcessedByTableCloners = array_merge($tablesProcessedByTableCloners, $tm->getTablesToSkip());
-            $tableMergers[$tableName] = $tm;
+            $tableCloners[$tableName] = $tm;
         }
-        $this->tableMergers = $tableMergers;
+        $this->tableCloners = $tableCloners;
         $this->tablesProcessedByTableCloners = array_flip($tablesProcessedByTableCloners);
 
         $this->alwaysRollback = !empty($config->alwaysRollback);
@@ -201,7 +199,6 @@ class MultiTenantTool {
      *         if array(true, log, id) cloning was successful and log contains all actions done;
      *         if array(false, errors, id) cloning was aborted and errors contain the list of errors.
      *         The last id is the log id of the cloning action for later visual revision.
-     * @throws coding_exception
      */
      public function cloneUser($userid, $tenantid) {
          list($success, $log) = $this->_cloneUser($userid, $tenantid);

@@ -71,12 +71,10 @@ $mts = new MultiTenantSearch();
 if(!empty($option)) {
     switch ($option) {
         // user is selected: save session.
-        case 'saveselection':
-
+        case 'saveuselection':
             list($user, $umessage) = $mts->verify_user(optional_param('user', NULL, PARAM_INT), 'id');
-            list($tenant, $tmessage) = $mts->verify_tenant(optional_param('company', NULL, PARAM_INT), 'id');
 
-            if($user === NULL && $tenant === NULL) {
+            if($user === NULL) {
                 $renderer->mu_error(get_string('no_saveselection', 'tool_multitenantuser'));
                 exit();
             }
@@ -90,6 +88,26 @@ if(!empty($option)) {
                 $SESSION->mtt->user = $user;
             }
 
+            $step = (!empty($SESSION->mtt->user) && !empty($SESSION->mtt->tenant)) ?
+                $renderer::INDEX_PAGE_CONFIRMATION_STEP :
+                $renderer::INDEX_PAGE_SEARCH_USER;
+
+            echo $renderer->index_page($multitenantform, $step);
+            break;
+
+        // tenant is selected: save session
+        case 'savetselection':
+            list($tenant, $tmessage) = $mts->verify_tenant(optional_param('company', NULL, PARAM_INT), 'id');
+
+            if($tenant === NULL) {
+                $renderer->mu_error(get_string('no_saveselection', 'tool_multitenantuser'));
+                exit();
+            }
+
+            if(empty($SESSION->mtt)) {
+                $SESSION->mtt = new stdClass();
+            }
+
             // if session selected tenant already has a tenant and we have a "new" tenant, replace the session's tenant
             if(empty($SESSION->mtt->tenant) || !empty($tenant)) {
                 $SESSION->mtt->tenant = $tenant;
@@ -97,7 +115,7 @@ if(!empty($option)) {
 
             $step = (!empty($SESSION->mtt->user) && !empty($SESSION->mtt->tenant)) ?
                 $renderer::INDEX_PAGE_CONFIRMATION_STEP :
-                $renderer::INDEX_PAGE_SEARCH_STEP;
+                $renderer::INDEX_PAGE_SEARCH_TENANT;
 
             echo $renderer->index_page($multitenantform, $step);
             break;
@@ -133,9 +151,14 @@ if(!empty($option)) {
             echo $renerer->results_page($user, $tenant, $sucess, $log, $logid);
             break;
 
-        // we have the user and tenant, but we want to change at least one
+        // we want to search for user having nothing selected
         case 'searchusers':
-            echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_STEP);
+            echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_USER);
+            break;
+
+        // we have a user and want to search for a tenant
+        case 'searchtenants':
+            echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_TENANT);
             break;
 
         // we have the user and tenant selected, and in the search step,
@@ -151,12 +174,12 @@ if(!empty($option)) {
     }
 } else if ($data) {
     // if there is a search argument, use that instead of advanced form
-    if (!empty($data->searchgroup['searcharg'])) {
+    if (!empty($data->searchgroup['searchargs'])) {
 
-        $search_users = $mts->search_users($data->searchgroup['searcharg'], $data->searchgroup['searchfield']);
+        $search_users = $mts->search_users($data->searchgroup['searchargs'], $data->searchgroup['searchfield']);
         $user_select_table = new UserSelectTable($search_users, $renderer);
 
-        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_AND_SELECT_STEP, $user_select_table);
+        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_AND_SELECT_USER, $user_select_table);
 
         // only run this step if there are both a userid and tenantid
     } else if (!empty($data->usergroup['userid']) && !empty($data->tenantgroup['tenantid'])) {
@@ -175,12 +198,12 @@ if(!empty($option)) {
         $SESSION->mtt->user = $user;
         $SESSION->mtt->tenant = $tenant;
 
-        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_AND_SELECT_STEP);
+        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_AND_SELECT_USER);
     } else {
         // show search form as default
-        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_STEP);
+        echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_USER);
     }
 } else {
     // no data submitted, default to search form
-    echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_STEP);
+    echo $renderer->index_page($multitenantform, $renderer::INDEX_PAGE_SEARCH_USER);
 }

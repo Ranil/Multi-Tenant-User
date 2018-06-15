@@ -32,14 +32,18 @@ require_once($CFG->dirroot . '/'.$CFG->admin.'/tool/multitenantuser/lib.php');
 
 class tool_multitenantuser_renderer extends plugin_renderer_base {
 
-    /** On index page, show only the search form. */
-    const INDEX_PAGE_SEARCH_STEP = 1;
-    /** On index page, show both search and select forms. */
-    const INDEX_PAGE_SEARCH_AND_SELECT_STEP = 2;
+    /** On index page, show only the user search form. */
+    const INDEX_PAGE_SEARCH_USER = 1;
+    /** On index page, show both user search and user select forms. */
+    const INDEX_PAGE_SEARCH_AND_SELECT_USER = 2;
+    /** On index page, show only tenant search form. */
+    const INDEX_PAGE_SEARCH_TENANT = 3;
+    /** On index page, show both tenant search and tenant select forms. */
+    const INDEX_PAGE_SEARCH_AND_SELECT_TENANT = 4;
     /** On index page, show only the review list */
-    const INDEX_PAGE_CONFIRMATION_STEP = 3;
+    const INDEX_PAGE_CONFIRMATION_STEP = 5;
     /** On index page, show the results. */
-    const INDEX_PAGE_RESULTS_STEP = 4;
+    const INDEX_PAGE_RESULTS_STEP = 6;
 
     /**
      * Renderers a progress bar.
@@ -66,26 +70,36 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * Returns the HTML for the progress bar, according to the current step.
      * @param int $step current step
      * @return string HTML for the progress bar.
-     * @throws coding_exception
      */
     public function build_progress_bar($step)
     {
         $steps = array(
-            array('text' => '1. ' . get_string('choose_users', 'tool_multitenantuser')),
-            array('text' => '2. ' . get_string('review_users', 'tool_multitenantuser')),
-            array('text' => '3. ' . get_string('results', 'tool_multitenantuser')),
+            array('text' => '1. ' . get_string('searchuser', 'tool_multitenantuser')),
+            array('text' => '2. ' . get_string('chooseuser', 'tool_multitenantuser')),
+            array('text' => '3. ' . get_string('searchtenant', 'tool_multitenantuser')),
+            array('text' => '4. ' . get_string('choosetenant', 'tool_multitenantuser')),
+            array('text' => '5. ' . get_string('review', 'tool_multitenantuser')),
+            array('text' => '6. ' . get_string('results', 'tool_multitenantuser')),
         );
 
         switch ($step) {
-            case self::INDEX_PAGE_SEARCH_STEP:
-            case self::INDEX_PAGE_SEARCH_AND_SELECT_STEP:
+            case self::INDEX_PAGE_SEARCH_USER:
                 $steps[0]['class'] = 'bold';
                 break;
-            case self::INDEX_PAGE_CONFIRMATION_STEP:
+            case self::INDEX_PAGE_SEARCH_AND_SELECT_USER:
                 $steps[1]['class'] = 'bold';
                 break;
-            case self::INDEX_PAGE_RESULTS_STEP:
+            case self::INDEX_PAGE_SEARCH_TENANT:
                 $steps[2]['class'] = 'bold';
+                break;
+            case self::INDEX_PAGE_SEARCH_AND_SELECT_TENANT:
+                $steps[3]['class'] = 'bold';
+                break;
+            case self::INDEX_PAGE_CONFIRMATION_STEP:
+                $steps[4]['class'] = 'bold';
+                break;
+            case self::INDEX_PAGE_RESULTS_STEP:
+                $steps[5]['class'] = 'bold';
         }
 
         return $this->progress_bar($steps);
@@ -98,7 +112,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param UserSelectTable $ust table for user after searching
      * @param TenantSelectTable $tst table for tenant after searching
      * @return string html to show on index page.
-     * @throws coding_exception
      */
     public function index_page(moodleform $mform, $step, UserSelectTable $ust = NULL, TenantSelectTable $tst = NULL) {
         $output = $this->header();
@@ -106,14 +119,23 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
 
         $output .= $this->build_progress_bar($step);
         switch ($step) {
-            case self::INDEX_PAGE_SEARCH_STEP:
+            case self::INDEX_PAGE_SEARCH_USER:
                 $output .= $this->moodleform($mform);
                 break;
-            case self::INDEX_PAGE_SEARCH_AND_SELECT_STEP:
+            case self::INDEX_PAGE_SEARCH_AND_SELECT_USER:
                 $output .= $this->moodleform($mform);
-                if($ust !== NULL && $tst !== NULL) {
-                    $this->page->requires->js_init_call('M.tool_multitenantuser.init_select_table', array());
+                // render user select table if available
+                if($ust !== NULL) {
                     $output .= $this->render_user_select_table($ust);
+                }
+                break;
+            case self::INDEX_PAGE_SEARCH_TENANT:
+                $output .= $this->moodleform($mform);
+                break;
+            case self::INDEX_PAGE_SEARCH_AND_SELECT_TENANT:
+                $output .= $this->moodleform($mform);
+                // render tenant select table if available
+                if ($tst !== NULL) {
                     $output .= $this->render_tenant_select_table($tst);
                 }
                 break;
@@ -134,11 +156,11 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      */
     public function render_user_select_table(UserSelectTable $ust)
     {
-        return $this->moodleform(new selectuserform($ust));
+        return $this->moodleform(new select_form($ust));
     }
 
     public function render_tenant_select_table(TenantSelectTable $tst) {
-        return $this->moodleform(new tenantselectform($tst));
+        return $this->moodleform(new tselect_form($tst));
     }
 
     /**
@@ -245,8 +267,7 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param moodleform $mform
      * @return string HTML
      */
-    protected function moodleform(moodleform $mform)
-    {
+    protected function moodleform(moodleform $mform) {
         ob_start();
         $mform->display();
         $o = ob_get_contents();
@@ -260,7 +281,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param int $userid user.id
      * @param object $user an object with firstname and lastname attributes.
      * @return string the corresponding HTML.
-     * @throws moodle_exception
      */
     public function show_user($userid, $user)
     {
@@ -278,8 +298,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * TODO: make pagination.
      * @param array $logs array of logs.
      * @return string the corresponding HTML.
-     * @throws coding_exception
-     * @throws moodle_exception
      * @global type $CFG
      */
     public function logs_page($logs)

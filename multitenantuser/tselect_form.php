@@ -46,11 +46,11 @@ class tselect_form extends moodleform {
         $mform->addElement('static', 'selectenantlist', '', html_writer::table($this->tst));
 
         // hidden elements
-        $mform->addElement('hidden', 'option', 'saveselection');
+        $mform->addElement('hidden', 'option', 'savetselection');
         $mform->setType('option', PARAM_RAW);
         $mform->addElement('hidden', 'selectedtenant', '');
         $mform->setType('selectedtenant', PARAM_RAW);
 
-        $this->add_action_buttons(false, get_string('saveselection_submit', 'tool_multitenantuser'));
+        $this->add_action_buttons(false, get_string('savetselection_submit', 'tool_multitenantuser'));
     }
 }

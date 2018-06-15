@@ -66,11 +66,10 @@ class UserSelectTable extends html_table implements renderable {
         $this->attributes['class'] = 'generaltable boxaligncenter';
 
         $columns = array(
-            'col_select_user' => get_string('user', 'tool_multitenantuser'),
+            'col_select_user' => get_string('select'),
             'col_userid' => 'ID',
             'col_username' => get_string('user'),
             'col_email' => get_string('email'),
-            'col_idnumber' => get_string('idnumber'),
         );
 
         $this->head = array_values($columns);

@@ -38,7 +38,6 @@ class select_form extends moodleform {
     }
 
     public function definition() {
-        global $CFG;
 
         $mform =& $this->_form;
 
@@ -49,11 +48,11 @@ class select_form extends moodleform {
         $mform->addElement('static', 'selectuserlist', '', html_writer::table($this->ust));
 
         // hidden elements
-        $mform->addElement('hidden', 'option', 'saveselection');
+        $mform->addElement('hidden', 'option', 'saveuselection');
         $mform->setType('option', PARAM_RAW);
         $mform->addElement('hidden', 'selecteduser', '');
         $mform->setType('selecteduser', PARAM_RAW);
 
-        $this->add_action_buttons(false, get_string('saveselection_submit', 'tool_multitenantuser'));
+        $this->add_action_buttons(false, get_string('saveuselection_submit', 'tool_multitenantuser'));
     }
 }

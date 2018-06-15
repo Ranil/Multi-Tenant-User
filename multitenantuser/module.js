@@ -26,11 +26,29 @@ M.tool_multitenantuser = {
                 node.on('click', function (e) {
 
                     current = e.currentTarget.get('name');
-                    if (current == 'user') {
-
+                    if (current == 'olduser') {
+                        target = 'newuser';
+                        lastselected = Y.one('input[name=selectedolduser]');
+                        lastvalue = lastselected.get('value');
+                    } else {
+                        target = 'olduser';
+                        lastselected = Y.one('input[name=selectednewuser]');
+                        lastvalue = lastselected.get('value');
                     }
-                })
-            })
-        })
+
+                    // first disable sibling radio button
+                    id = e.currentTarget.get('value');
+                    radiobutton = Y.one('#' + target + id);
+                    radiobutton.setAttribute('disabled', 'disabled');
+
+                    // after that, reenable old sibling radio button
+                    if (lastvalue != "" && lastvalue != id) {
+                        last = Y.one('#' + target + lastvalue);
+                        last.removeAttribute('disabled');
+                    }
+                    lastselected.set('value', id);
+                });
+            });
+        });
     }
 }
