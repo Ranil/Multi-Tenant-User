@@ -131,6 +131,10 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
                 break;
             case self::INDEX_PAGE_SEARCH_TENANT:
                 $output .= $this->moodleform($mform);
+                // render tenant select table if available
+                if ($tst !== NULL) {
+                    $output .= $this->render_tenant_select_table($tst);
+                }
                 break;
             case self::INDEX_PAGE_SEARCH_AND_SELECT_TENANT:
                 $output .= $this->moodleform($mform);
@@ -182,8 +186,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      *
      * @param string $message The error message
      * @param bool $showreturn Shows a return button to the index page
-     * @throws coding_exception
-     * @throws moodle_exception
      */
     public function mu_error($message, $showreturn = true) {
         $errorhtml = '';
@@ -210,8 +212,6 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
      * @param array $data logs actions done if success, lists errors on failure.
      * @param id $logid id of the record with the whole detail of the action.
      * @return string html with the results.
-     * @throws coding_exception
-     * @throws moodle_exception
      */
     public function results_page($to, array $tenants, $success, array $data, $logid) {
         if($success) {
@@ -291,6 +291,13 @@ class tool_multitenantuser_renderer extends plugin_renderer_base {
             ' (' . $user->username . ') ' .
             ' &lt;' . $user->email . '&gt;' .
             ' ' . $user->idnumber);
+    }
+
+    public function show_tenant($tenantid) {
+        return html_writer::link(
+            new moodle_url('/local/report_companies/index.php',
+                array('companyid' => $tenantid)),
+            company::get_companyname_byid($tenantid));
     }
 
     /**

@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die;
  * Gets whether database transactions are allowed.
  * @global moodle_database $DB
  * @return bool true if transactions are allowed. false otherwise.
+ * @throws ReflectionException
  */
 function tool_multitenantuser_transactionssupported() {
     global $DB;

@@ -25,6 +25,9 @@
 
 require_once($CFG->libdir.'/formslib.php'); /// forms library
 
+/**
+ * This class formats the table that will be shown on the index page, called in index.php when referencing $renderer->index_page();
+ */
 class multitenantform extends moodleform {
 
     public function definition(){

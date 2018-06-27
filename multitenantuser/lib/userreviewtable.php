@@ -38,8 +38,8 @@ class UserReviewTable extends html_table implements renderable {
     /** @var stdClass $user The user db object */
     protected $user;
 
-    /** @var stdClass $tenants The tenants db object */
-    protected $tenants;
+    /** @var stdClass $tenant The tenant db object */
+    protected $tenant;
 
     /** @var bool $showaddbutton Whether or not to show the add tenants button on rendering */
     protected $showaddbutton = false;
@@ -64,8 +64,8 @@ class UserReviewTable extends html_table implements renderable {
             if (!empty($SESSION->mtt->user)) {
                 $this->user = $SESSION->mtt->user;
             }
-            if (!empty($SESSION->mtt->tenants)) {
-                $this->tenants = $SESSION->mtt->tenants;
+            if (!empty($SESSION->mtt->tenant)) {
+                $this->tenant = $SESSION->mtt->tenant;
             }
         }
         $this->buildtable();
@@ -112,10 +112,16 @@ class UserReviewTable extends html_table implements renderable {
             }
             $this->data[] = $userrow;
 
-            $tenantsrow = array();
-            $tenantsrow[] = get_string('tenants', 'tool_multitenantuser');
+            $tenantrow = array();
+            $tenantrow[] = get_string('tenant', 'tool_multitenantuser');
             if(!empty($this->tenants)) {
-                // TODO: Iterate through tenants array
+                $tenantrow[] = $this->tenant->id;
+                $tenantrow[] = $this->renderer->show_tenant($this->tenant->id);
+                $tenantrow[] = $this->tenant->$extrafield;
+            } else {
+                $tenantrow[] = '';
+                $tenantrow[] = '';
+                $tenantrow[] = '';
             }
         }
     }
